@@ -1,0 +1,342 @@
+<?xml version="1.0"?>
+
+<robot name="arm_manipulator" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- Gazebo -->
+    <!-- Start GZ or Ignition depending on ROS 2 Version -->
+    <xacro:arg name="is_ignition" default="true"/>
+
+    <!-- Load Simulated or Real Hardware Interfaces -->
+    <xacro:arg name="is_sim" default="true"/>
+    
+    <!-- Include Gazebo Parameters -->
+    <xacro:include filename="$(find manipulator_description)/urdf/manipulator_gazebo.xacro" />
+
+    <!-- Include ros2_control Plugins -->
+    <xacro:include filename="$(find manipulator_description)/urdf/manipulator_ros2_control.xacro" />
+
+    <!-- Useful Variables (Properties) -->
+    <xacro:property name="PI" value="3.14159265359" />
+
+
+    <!-- Links -->
+    <link name="world"/>
+    <link name="base_link"/>
+
+    <!-- Base Inertia Link -->
+    <link name="base_link_inertia">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 ${PI}"/>
+            <geometry>
+                <mesh filename="package://manipulator_description/meshes/base.dae"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 ${PI}"/>
+            <geometry>
+                <mesh filename="package://manipulator_description/meshes/base.stl"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="2.0"/>
+            <inertia
+            ixx = "0.00610633333"
+            ixy = "0.0"
+            ixz = "0.0"
+            iyy = "0.00610633333"
+            iyz = "0.0"
+            izz = "0.0057"
+            />
+        </inertial>
+    </link>
+
+    <!-- Vertical Slider Link -->
+    <link name="vertical_slider_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"></origin>
+            <geometry>
+                <cylinder radius="0.060" length="0.2"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"></origin>
+            <geometry>
+                <cylinder radius="0.075" length="0.2"/>
+            </geometry>
+            <material name="black"/>
+        </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="2.0"/>
+            <inertia
+            ixx = "0.01021875"
+            ixy = "0.0"
+            ixz = "0.0"
+            iyy = "0.01021875"
+            iyz = "0.0"
+            izz = "0.0064375"
+            />
+        </inertial>
+    </link>
+
+    <!-- Shoulder Link -->
+    <link name="shoulder_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 ${PI}"/>
+        <geometry>
+          <mesh filename="package://manipulator_description/meshes/shoulder.dae"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 ${PI}"/>
+        <geometry>
+          <mesh filename="package://manipulator_description/meshes/shoulder.stl"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="2.0"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.02"/>
+        <inertia
+            ixx = "0.008093166666666665"
+            ixy = "0.0"
+            ixz = "0.0"
+            iyy = "0.008093166666666665"
+            iyz = "0.0"
+            izz = "0.005625"
+        />
+      </inertial>
+    </link>
+
+    <!--Upper Arm Link-->
+    <link name="upper_arm_link">
+      <visual>
+        <origin xyz="0 0 0.1198" rpy="${PI/2} 0 ${-PI/2}"/>
+        <geometry>
+          <mesh filename="package://manipulator_description/meshes/upperarm.dae"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0.1198" rpy="${PI/2} 0 ${-PI/2}"/>
+        <geometry>
+          <mesh filename="package://manipulator_description/meshes/upperarm.stl"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="-0.11365 0.0 0.1157" rpy="0 1.570796326794897 0"/>
+        <mass value="3.42"/>
+        <inertia
+            ixx = "0.021728491912499998"
+            ixy = "0.0"
+            ixz = "0.0"
+            iyy = "0.021728491912499998"
+            iyz = "0.0"
+            izz = "0.00961875"
+        />
+      </inertial>
+    </link>
+
+    <!-- Forearm Link-->
+    <link name="forearm_link">
+      <visual>
+        <origin xyz="0 0 0.0275" rpy="${PI/2} 0 ${-PI/2}"/>
+        <geometry>
+          <mesh filename="package://manipulator_description/meshes/forearm.dae"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0.0275" rpy="${PI/2} 0 ${-PI/2}"/>
+        <geometry>
+          <mesh filename="package://manipulator_description/meshes/forearm.stl"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="-0.16325 0.0 0.0238" rpy="0 1.570796326794897 0"/>
+        <mass value="1.26"/>
+        <inertia
+            ixx = "0.0065468090625"
+            ixy = "0.0"
+            ixz = "0.0"
+            iyy = "0.0065468090625"
+            iyz = "0.0"
+            izz = "0.00354375"
+        />
+      </inertial>
+    </link>
+
+    <!-- Wrist 1 Link-->
+    <link name="wrist_1_link">
+      <visual>
+        <origin xyz="0 0 -0.085" rpy="${PI/2} 0 0"/>
+        <geometry>
+          <mesh filename="package://manipulator_description/meshes/wrist1.dae"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 -0.085" rpy="${PI/2} 0 0"/>
+        <geometry>
+          <mesh filename="package://manipulator_description/meshes/wrist1.stl"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0.0 -0.01 0.0" rpy="0 0 0"/>
+        <mass value="0.8"/>
+        <inertia
+            ixx = "0.0016106414999999998"
+            ixy = "0.0"
+            ixz = "0.0"
+            iyy = "0.0016106414999999998"
+            iyz = "0.0"
+            izz = "0.00225"
+        />
+      </inertial>
+    </link>
+
+    <!-- Wrist 2 Link-->
+    <link name="wrist_2_link">
+      <visual>
+        <origin xyz="0 0 -0.083" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://manipulator_description/meshes/wrist2.dae"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 -0.083" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://manipulator_description/meshes/wrist2.stl"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0.0 0.018 -0.007" rpy="-1.570796326794897 0 0"/>
+        <mass value="0.8"/>
+        <inertia
+            ixx = "0.0015721739999999998"
+            ixy = "0.0"
+            ixz = "0.0"
+            iyy = "0.0015721739999999998"
+            iyz = "0.0"
+            izz = "0.00225"
+        />
+      </inertial>
+    </link>
+
+    <!-- Wrist 3 Link-->
+    <link name="wrist_3_link">
+      <visual>
+        <origin xyz="0 0 -0.082" rpy="${PI/2} 0 0"/>
+        <geometry>
+          <mesh filename="package://manipulator_description/meshes/wrist3.dae"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 -0.082" rpy="${PI/2} 0 0"/>
+        <geometry>
+          <mesh filename="package://manipulator_description/meshes/wrist3.stl"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0.0 0.0 -0.02" rpy="0 0 0"/>
+        <mass value="0.35"/>
+        <inertia
+            ixx = "0.00013626666666666665"
+            ixy = "0.0"
+            ixz = "0.0"
+            iyy = "0.00013626666666666665"
+            iyz = "0.0"
+            izz = "0.0001792"
+        />
+      </inertial>
+    </link>
+
+    <!-- Joints -->
+    <!-- Base Joint-->
+    <joint name="base_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <parent link="world"/>
+        <child link="base_link"/>
+    </joint>
+
+    <!-- Base-Base_Inertia Joint-->
+    <joint name="base_link_base_link_inertia" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 ${PI}"/>
+        <parent link="base_link"/>
+        <child link="base_link_inertia"/>
+    </joint>
+
+    <!-- Vertical Slider Joint -->
+    <joint name="vertical_slider_joint" type="prismatic">
+        <parent link="base_link_inertia"/>
+        <child link="vertical_slider_link"/>
+        <origin xyz="0 0 0.21" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="-0.1" upper="1.0" effort="1000.0" velocity="1.0"></limit>
+        <dynamics damping="0" friction="0"/>
+    </joint>
+
+    <!-- Shoulder Pan Joint -->
+    <joint name="shoulder_pan_joint" type="revolute">
+        <parent link="vertical_slider_link"/>
+        <child link="shoulder_link"/>
+        <origin xyz="0.0 0.0 0.16" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="-${2*PI}" upper="${2*PI}" effort="330.0" velocity="${PI}"></limit>
+        <dynamics damping="0" friction="0"/>
+    </joint> 
+
+    <!-- Shoulder Lift Joint -->
+    <joint name="shoulder_lift_joint" type="revolute">
+        <parent link="shoulder_link"/>
+        <child link="upper_arm_link"/>
+        <origin xyz="0 0 0" rpy="1.570796327 0.0 0.0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="${-PI*2}" upper="${PI*2}" effort="330.0" velocity="${(2*PI)/3}"></limit>
+        <dynamics damping="0" friction="0"/>
+    </joint>
+
+    <!-- Elbow Joint -->
+    <joint name="elbow_joint" type="revolute">
+        <parent link="upper_arm_link"/>
+        <child link="forearm_link"/>
+        <origin xyz="-0.24365 0 0" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="${-PI}" upper="${PI}" effort="150.0" velocity="${PI}"></limit>
+        <dynamics damping="0" friction="0"/>
+    </joint>
+
+    <!-- Wrist 1 Joint -->
+    <joint name="wrist_1_joint" type="revolute">
+        <parent link="forearm_link"/>
+        <child link="wrist_1_link"/>
+        <origin xyz="-0.21325 0 0.11235" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="${-PI*2}" upper="${PI*2}" effort="54.0" velocity="${PI}"></limit>
+        <dynamics damping="0" friction="0"/>
+    </joint>
+
+    <!-- Wrist 2 Joint -->
+    <joint name="wrist_2_joint" type="revolute">
+        <parent link="wrist_1_link"/>
+        <child link="wrist_2_link"/>
+        <origin xyz="0 -0.08535 -1.750557762378351e-11" rpy="1.570796327 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="${-PI*2}" upper="${PI*2}" effort="54.0" velocity="${PI}"></limit>
+        <dynamics damping="0" friction="0"/>
+    </joint>
+
+    <!-- Wrist 3 Joint -->
+    <joint name="wrist_3_joint" type="revolute">
+        <parent link="wrist_2_link"/>
+        <child link="wrist_3_link"/>
+        <origin xyz="0 0.0819 -1.679797079540562e-11" rpy="1.570796326589793 3.141592653589793 3.141592653589793"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="${-PI*2}" upper="${PI*2}" effort="54.0" velocity="${PI}"></limit>
+        <dynamics damping="0" friction="0"/>
+    </joint>
+
+    <!-- Materials -->
+    <material name="black">
+        <color rgba="0 0 0 1"/>
+    </material>
+
+</robot>
