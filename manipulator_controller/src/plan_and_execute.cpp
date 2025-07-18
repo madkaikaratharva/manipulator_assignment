@@ -57,6 +57,22 @@ int main(int argc, char** argv)
     moveit::planning_interface::MoveGroupInterface move_group(move_group_node, PLANNING_GROUP);
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
 
+    // Set Velocity Scaling and planning time
+    move_group.setMaxVelocityScalingFactor(1.0);
+    move_group.setMaxAccelerationScalingFactor(1.0);
+
+    // Robot Home Position
+    move_group.setNamedTarget("home");
+    moveit::planning_interface::MoveGroupInterface::Plan plan;
+    bool success = (move_group.plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
+    if (success)
+    {
+        RCLCPP_INFO(move_group_node->get_logger(), "Returning to home position");   
+        move_group.execute(plan);
+        RCLCPP_INFO(move_group_node->get_logger(), "Returned to home position");
+
+    }
+
     // Planning frame and end effector link
     RCLCPP_INFO(move_group_node->get_logger(), "Planning frame: %s", move_group.getPlanningFrame().c_str());
     RCLCPP_INFO(move_group_node->get_logger(), "End effector link: %s", move_group.getEndEffectorLink().c_str());
@@ -91,7 +107,8 @@ int main(int argc, char** argv)
 
         if(success)
         {
-            // Add Parameterization
+            // Add Time Parameterization.
+            // Using time parameterization between trajectory points to attain trapezoidal velocity profiles
             robot_trajectory::RobotTrajectory rt(
                 move_group.getRobotModel(),
                 move_group.getName()
@@ -111,7 +128,9 @@ int main(int argc, char** argv)
         }
         else
         {
-            RCLCPP_INFO(move_group_node->get_logger(), "Plan unsuccessful");   
+            RCLCPP_INFO(move_group_node->get_logger(), "Plan unsuccessful");
+            rclcpp::shutdown();
+            return 0; 
         }
 
         rclcpp::sleep_for(std::chrono::seconds(2));

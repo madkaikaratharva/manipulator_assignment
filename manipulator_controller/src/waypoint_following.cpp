@@ -39,13 +39,13 @@ int main(int argc, char** argv)
     };
 
     std::unordered_map<std::string, double> acceleration_limits = {
-    {"vertical_slider_joint", 2.5},
-    {"shoulder_pan_joint", 2.5},
-    {"shoulder_lift_joint", 2.5},
-    {"elbow_joint", 2.5},
-    {"wrist_1_joint", 2.5},
-    {"wrist_2_joint", 2.5},
-    {"wrist_3_joint", 2.5}
+    {"vertical_slider_joint", 3.0},
+    {"shoulder_pan_joint", 3.0},
+    {"shoulder_lift_joint", 3.0},
+    {"elbow_joint", 3.0},
+    {"wrist_1_joint", 3.0},
+    {"wrist_2_joint", 3.0},
+    {"wrist_3_joint", 3.0}
     };
 
 
@@ -58,7 +58,24 @@ int main(int argc, char** argv)
     RCLCPP_INFO(move_group_node->get_logger(), "Planning frame: %s", move_group.getPlanningFrame().c_str());
     RCLCPP_INFO(move_group_node->get_logger(), "End effector link: %s", move_group.getEndEffectorLink().c_str());
 
-    // Define Waypoints
+    // Set Velocity Scaling and planning time
+    move_group.setMaxVelocityScalingFactor(1.0);
+    move_group.setMaxAccelerationScalingFactor(1.0);
+
+    // Robot goes to zero position on start
+    move_group.setNamedTarget("zero");
+    moveit::planning_interface::MoveGroupInterface::Plan plan;
+    bool success = (move_group.plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
+    if (success)
+    {
+        RCLCPP_INFO(move_group_node->get_logger(), "Returning to zero position");   
+        move_group.execute(plan);
+        RCLCPP_INFO(move_group_node->get_logger(), "Returned to zero position");
+
+    }
+
+    // Simulates task specific movement only along the X-Y plane
+    // Define Waypoints. Movemnet along Z-axis remains unchanged
     geometry_msgs::msg::Pose start_pose = move_group.getCurrentPose().pose;
     
     std::vector<geometry_msgs::msg::Pose> waypoints;
@@ -104,7 +121,8 @@ int main(int argc, char** argv)
     double fraction = move_group.computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory);
 
 
-    // Time Parametrization and Optimization
+    // Time Parametrization and Optimization. 
+    // Using time parameterization between trajectory points to attain trapezoidal velocity profiles
     robot_trajectory::RobotTrajectory rt(
         move_group.getRobotModel(),
         move_group.getName()
@@ -132,7 +150,9 @@ int main(int argc, char** argv)
     }
     else
     {
-        RCLCPP_INFO(move_group_node->get_logger(), "Plan unsuccessful");   
+        RCLCPP_INFO(move_group_node->get_logger(), "Plan unsuccessful");
+        rclcpp::shutdown();
+        return 0;   
     }
 
     rclcpp::shutdown();

@@ -36,11 +36,11 @@ ros2 launch manipulator_moveit moveit_rviz.launch.py
 ```
 
 
-## Custom Goal, trajectory planning, and velocities profiles
+## Custom Goal, trajectory planning, and velocity profiles
 
 In this C++ node, two target goal poses were defined, and a trajectory was generated from the home position to Pose_1, and then to Pose_2. Time parameterization was applied between trajectory points to achieve trapezoidal velocity profiles.
 
-Full Video Link:[velocity_profile_1](https://drive.google.com/file/d/1yXJh0pUoaGdy2gCkndLf5UreJuGtQ1Jj/view?usp=sharing)
+Full Video Link: [planning and execution complete video](https://drive.google.com/file/d/1yXJh0pUoaGdy2gCkndLf5UreJuGtQ1Jj/view?usp=sharing)
 
 
 ![planning_and_execution](media/gifs/trapezoidal_velocities_goal_planning_execution.gif)
@@ -62,7 +62,7 @@ ros2 run manipulator_controller plan_and_execute
 
 In this C++ node, a set of 8 predefined points was used to simulate small movements along the X-Y plane. The manipulator executed these movements while adjusting its vertical slider as needed (end effector only moving along the X-Y axis). Time-parameterized trajectories were used to generate trapezoidal velocity profiles; however, the results were less precise and smooth for shorter trajectories.
 
-Full Video Link:[velocity_profile_2](https://drive.google.com/file/d/11uBrrSfHUE7bH3j_yI8hV7jpzi8ncU9v/view?usp=sharing)
+Full Video Link: [cartesian way point following full video](https://drive.google.com/file/d/11uBrrSfHUE7bH3j_yI8hV7jpzi8ncU9v/view?usp=sharing)
 
 ![waypointfollowing](media/gifs/velocity_profiles_cartesian_points.gif)
 
